@@ -1,0 +1,38 @@
+NAME
+        word_sort
+
+SYNOPSIS
+        #include "word_sort.h"
+
+        unsigned int word_sort( const char *src, char *dst, unsigned int dst_len, unsigned int flags );
+
+DESCRIPTION
+        The word_sort() function sorts a whitespace separated list of words in the string src into
+        alphabetical order and stores them separated by a single space in the provided output buffer dst.
+        Words are read from src until a '\0' is encountered.  A '\0' appended to dst.  The dst_len parameter
+        is the size of the provided output buffer dst in chars.  Note that the required output buffer
+        length may be less than strlen(src) + 1, if src contains adjacent white spaces.  If src contains
+        only whitespace the output buffer will contain a single '\0'.
+
+        The flags parameter maybe contain the following:
+
+        WORD_SORT_REVERSE
+                Sort in reverse alphabetical order.
+
+        WORD_SORT_IGNORE_CASE
+                Case insensitive sort.
+
+RETURN VALUE
+       The function returns the number of characters written to dst including the trailing '\0'.
+       If there is insuffient space in dst then the function returns 0.
+
+THREAD SAFETY
+       The function is thread safe.
+
+EXAMPLES
+        src                       flags                             dst             return value
+        ========================================================================================
+        "The   \t\n cat  sat"     0                                 "The cat sat"   12 
+        "The   \t\n cat  sat"     WORD_SORT_IGNORE_CASE             "cat sat The"   12
+        "The   \t\n cat  sat"     WORD_SORT_REVERSE                 "sat cat The"   12
+
