@@ -1,10 +1,11 @@
 
+#define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "word_sort_copy.h"
 #include <assert.h>
+#include <stdlib.h>
 
 #include <unistd.h>
 
@@ -26,10 +27,8 @@ int main (int argc, char **argv) {
  /* To make word_sort() threadsafe, the caller should be responsible for allocating space */
 dst = (char *) malloc (dst_len);
 
-/* Call word_sort() */
+/* Call word_sort() */ 
 word_sort_retval = word_sort(src, dst, dst_len, flags);
-
-
 
 } /* end main() */
 
@@ -51,6 +50,7 @@ unsigned int word_sort( const char *src, char *dst, unsigned int dst_len, unsign
    char *buffer_tmp = NULL;
    const char *tmp_src = NULL;
    char *tmp_dst = NULL;
+   int word_cnt = 0;
 
    /* Check valid args */
    assert (src != NULL);
@@ -74,10 +74,56 @@ unsigned int word_sort( const char *src, char *dst, unsigned int dst_len, unsign
       else tmp_dst++;
     }
 
-    /* Sort dst based on flags */
+    /* Determine number of elements (words) in dst based on spaces-1 */
+    tmp_dst = dst;
+    while (*tmp_dst) {
+       if (*tmp_dst == ' ') word_cnt++;
+       tmp_dst++;
+    }
+    word_cnt--;
 
-return (strlen(dst) + 1);
-}
+    /* Sort dst based on flags */
+    printf ("%s %d\n", __FILE__, __LINE__);
+    qsort_r(dst, word_cnt, sizeof(char *), mystrcmp, &flags);
+    printf ("==>%s\n", dst);
+    return (strlen(dst) + 1);
+} /* end word_sort() */
+
+/**
+ * @brief My thread-safe qsort compare routine
+ * 
+ * @param a - pointer a
+ * @param b - pointer b
+ * @param c - pointer c
+ * @return - unsigned int 
+ */
+int mystrcmp(const void *aIn, const void *bIn , void *thunkIn) {
+   const char *a = *(const char **)aIn;
+   const char *b = *(const char **)bIn;
+   int thunk = *(int *)thunkIn;
+   int retval = -99;
+
+   printf ("%s %d\n", __FILE__, __LINE__);
+   /*Alphabetical Sort */
+   if (thunk == 0) { 
+       printf ("SORT ALPHA");
+       retval = (strcmp(a, b));
+   }
+
+   /*Reverse Alphabetical Sort */
+   else if (thunk == WORD_SORT_REVERSE) {
+       printf ("SORT REVERSE ALPHA");
+       if (strcmp(a,b) > 0) return -1;
+       if (strcmp(a,b) < 0) return 1;
+       retval = 0;
+   }
+   /*Ignore Case Alphabetical Sort */
+   else if (thunk == WORD_SORT_IGNORE_CASE) {
+      printf ("SORT IGN CASE ALPHA");
+      retval = strcasecmp(a, b);
+   }
+   return retval;
+} /* end mystrcmp() */
 
 /**
  * @brief Determine, from src, the length neede for dst buffer
