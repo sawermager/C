@@ -1,1 +1,1 @@
-# Repo for C-specific-stuff
+# Repo for C-specific code/projects/misc
