@@ -18,7 +18,11 @@
 pthread_t handles[MAX_SERVERS];
 int nprimes = 0;
 int lower = 0;
+
+/* Range limit of prime numbers to find, [0-biggest] */
 int biggest = 10000000;
+
+/* Split up the work into sections j
 int chunk_size = 1000;
 
 pthread_mutex_t prime_lock = PTHREAD_MUTEX_INITIALIZER;
