@@ -14,7 +14,12 @@
 
 ### Run Format: Client
 '''
-./client -n <
+./client -n 1000000 -c 100000 guest1-VirtualBox guest2-VirtualBox
+
+client -n 1000000 -c 100000 guest1-VirtualBox guest2-VirtualBox
+
+
+
 
 
 

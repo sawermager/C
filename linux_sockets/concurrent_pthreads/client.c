@@ -22,7 +22,7 @@ int lower = 0;
 /* Range limit of prime numbers to find, [0-biggest] */
 int biggest = 10000000;
 
-/* Split up the work into sections j
+/* Split up the work into ranges of the numbers (chunks) */
 int chunk_size = 1000;
 
 pthread_mutex_t prime_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -97,6 +97,8 @@ int main (int argc, char **argv) {
       }
 
       /* Connect to prime server on this host and create socket */
+      assertf((sock = socket(AF_INET, SOCK_STREAM, 0)) > 0, 
+               "failed socket()");
       server.sin_family = AF_INET;
       memcpy(&server.sin_addr, host_info->h_addr, host_info->h_length);
       server.sin_port = htons(PRIME_PORT);
