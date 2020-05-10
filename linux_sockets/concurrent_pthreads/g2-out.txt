@@ -1,8 +1,0 @@
-listening on port 61000 ...
-got connection
-range   100000 -   200000 : count = 8392
-range   300000 -   400000 : count = 7863
-range   500000 -   600000 : count = 7560
-range   700000 -   800000 : count = 7408
-range   900000 -  1000000 : count = 7224
-
