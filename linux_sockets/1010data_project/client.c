@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     }
 
     if (rp == NULL) {               /* No address succeeded */
-		fprintf(stderr, "Could not bind to an address\n");
+		fprintf(stderr, "Could not connect to an address\n");
         exit(EXIT_FAILURE);
     }
 

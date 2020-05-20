@@ -169,6 +169,8 @@ int main(int argc, char **argv)
 	        unsigned char *valid="Valid username";
 	        unsigned char *invalid="Invalid username";
 		    while (1)  {
+
+                           /* Receive here will block until connection found */
 			   nread = recvfrom(sfd, buf, BUF_SIZE, 0,
                                 (struct sockaddr *) &peer_addr, &peer_addr_len);
                 if (nread == -1)
