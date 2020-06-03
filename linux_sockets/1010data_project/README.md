@@ -7,7 +7,7 @@ TO BUILD:
 cd 1010data_project/  
 make all
 
-To run using automatin test tool:
+To run using automation test tool:
 ===================================
 ./test <num_procs> <port> <TCP|UDP>
 ctrl-c to quit.
