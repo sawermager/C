@@ -1,13 +1,13 @@
-# linux_sockets_C_python
+# linux_sockets_C
 
 Quick Start:
 
 TO BUILD:
 ========
-cd 1010data_project/
+cd 1010data_project/  
 make all
 
-To run using automatiom test tool:
+To run using automation test tool:
 ===================================
 ./test <num_procs> <port> <TCP|UDP>
 ctrl-c to quit.
