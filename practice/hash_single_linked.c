@@ -22,23 +22,24 @@ int max_size = 10;
 
 void display() {
    int i, j; 
-   Node *Ptr_tmp_table = NULL;
    Node *Ptr_tmp_list = NULL;
 
    for (i=0; i<max_size; ++i) {
-      Ptr_tmp_table = (Ptr_entry_table+i)->Ptr_head_entry;
-      if (!Ptr_tmp_table) {
-         printf("No hashed values in table entry %d\n", i);
+      Ptr_tmp_list = (Ptr_entry_table+i)->Ptr_head_entry;
+      if (!Ptr_tmp_list) {
+         printf("Entry %d: No hashed values\n", i);
       }
       else {
          printf("Entry %d: ", i);
-         Ptr_tmp_list = Ptr_tmp_table;
          for (j=0; Ptr_tmp_list; ++j) {
-            printf("key=%d,value=%d ", Ptr_tmp_list->key, Ptr_tmp_list->value);
+            printf("key=%d,value=%d", Ptr_tmp_list->key, Ptr_tmp_list->value);
             if (!Ptr_tmp_list->next) break;
-            else Ptr_tmp_list++;
+            else {
+               printf(", ");
+               Ptr_tmp_list = Ptr_tmp_list->next;
+            }
          }
-      Ptr_tmp_table++; 
+         printf("\n");
       }
    }
 } /* end display() */
@@ -57,8 +58,9 @@ int hash(int key) {
 
 bool insert(int key, int value) {
    bool retval = true;
+   Node *Ptr_tmp;
+   Node *Ptr_tmp_traverse;
    int hashed_entry = hash(key);
-   Node *Ptr_tmp = (Ptr_entry_table+hashed_entry)->Ptr_head_entry;
    if ((Ptr_tmp = (Node *) malloc (sizeof(Node))) 
       == NULL) {
       retval = false;
@@ -66,6 +68,16 @@ bool insert(int key, int value) {
    Ptr_tmp->key = key;
    Ptr_tmp->value = value;
    Ptr_tmp->next = NULL;
+   if ((Ptr_entry_table+hashed_entry)->Ptr_head_entry == NULL) {
+      (Ptr_entry_table+hashed_entry)->Ptr_head_entry = Ptr_tmp;
+   }
+   else {
+      Ptr_tmp_traverse = (Ptr_entry_table+hashed_entry)->Ptr_head_entry;
+      while(Ptr_tmp_traverse->next) {
+         Ptr_tmp_traverse = Ptr_tmp_traverse->next;
+      }
+      Ptr_tmp_traverse->next = Ptr_tmp;
+   }
    return retval;   
 } /* end insert() */
 
@@ -73,6 +85,7 @@ int main () {
 
    int choice = 0;
    int key, value;
+   int retval;
    if ((Ptr_entry_table = (Table *) malloc (sizeof(Table) * max_size)) == NULL) {
       assert(Ptr_entry_table == NULL);
    }
@@ -96,7 +109,7 @@ int main () {
             scanf("%d", &key);
             printf("Enter value: ");    
             scanf("%d", &value);
-            if (insert(key, value) == NULL) {
+            if ((retval = insert(key, value) == false)) {
                printf("Failed to add entry.\n");
                exit(0);
             }
