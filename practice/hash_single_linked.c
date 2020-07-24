@@ -4,17 +4,6 @@
 #include <stdbool.h>
 #include "hash.h"
 
-typedef struct node {
-   int key;
-   int value;
-   struct node *next;
-} Node;
-
-/* Pointer to head and tail of each hash entry list*/
-typedef struct table {
-   Node *Ptr_head_entry;
-   Node *Ptr_tail_entry;
-} Table;
 
 Table *Ptr_entry_table = NULL;
 int current_size;
@@ -24,6 +13,7 @@ void display() {
    int i, j; 
    Node *Ptr_tmp_list = NULL;
 
+   printf("Total number of elements in table: %d\n", current_size);
    for (i=0; i<max_size; ++i) {
       Ptr_tmp_list = (Ptr_entry_table+i)->Ptr_head_entry;
       if (!Ptr_tmp_list) {
@@ -56,27 +46,69 @@ int hash(int key) {
    return (key%max_size);
 }
 
+bool find (Node *Ptr_tmp, int key) {
+   int i;
+   while (Ptr_tmp) {
+      if (Ptr_tmp->key == key) {
+         return true;
+      }
+      Ptr_tmp = Ptr_tmp->next;
+   }
+   return false;
+}
+
+Node *get_element(Node *Ptr_tmp, int key) {
+   while (Ptr_tmp) {
+      if (Ptr_tmp->key = key) 
+         return Ptr_tmp;
+      Ptr_tmp = Ptr_tmp->next; 
+   return (Node *)NULL;
+   }
+}
+
 bool insert(int key, int value) {
    bool retval = true;
    Node *Ptr_tmp;
-   Node *Ptr_tmp_traverse;
+   Node *Ptr_ele_tmp;
    int hashed_entry = hash(key);
-   if ((Ptr_tmp = (Node *) malloc (sizeof(Node))) 
-      == NULL) {
+
+   if ((Ptr_tmp = (Node *) malloc (sizeof(Node))) == NULL) {
+      perror("malloc failed");     
       retval = false;
    }
    Ptr_tmp->key = key;
    Ptr_tmp->value = value;
    Ptr_tmp->next = NULL;
-   if ((Ptr_entry_table+hashed_entry)->Ptr_head_entry == NULL) {
+
+   /* empty table entry*/
+   if (!((Ptr_entry_table+hashed_entry)->Ptr_head_entry)) {
       (Ptr_entry_table+hashed_entry)->Ptr_head_entry = Ptr_tmp;
+      (Ptr_entry_table+hashed_entry)->Ptr_tail_entry = Ptr_tmp;
+      current_size++;
    }
    else {
-      Ptr_tmp_traverse = (Ptr_entry_table+hashed_entry)->Ptr_head_entry;
-      while(Ptr_tmp_traverse->next) {
-         Ptr_tmp_traverse = Ptr_tmp_traverse->next;
+
+      /* Check to see if key/value pair already exists. */
+      /* If it does, then overwrite existing value for that key. */
+      if (find((Ptr_entry_table+hashed_entry)->Ptr_head_entry, key)) {
+
+         /* get duplicate element and replace it's value */
+         printf("Found pre-existing entry for key: %d. Overwriting value.\n",
+            key);
+
+         /* Can free allocated space since replacing element instead of
+            adding one to end of list. */
+         free(Ptr_tmp);
+
+         /* Get element with dup key and replace value with new value */
+         Ptr_ele_tmp = get_element((Ptr_entry_table+hashed_entry)->Ptr_head_entry, key); 
+         Ptr_ele_tmp->value = value;
       }
-      Ptr_tmp_traverse->next = Ptr_tmp;
+      else {
+         (Ptr_entry_table+hashed_entry)->Ptr_tail_entry->next = Ptr_tmp;
+         (Ptr_entry_table+hashed_entry)->Ptr_tail_entry = Ptr_tmp;
+         current_size++;
+      }
    }
    return retval;   
 } /* end insert() */
