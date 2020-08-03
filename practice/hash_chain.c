@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include "hash.h"
 
-
 Table *Ptr_entry_table = NULL;
 int current_size;
 int max_size = 10;
