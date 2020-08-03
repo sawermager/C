@@ -12,7 +12,7 @@ hash_chain.c:
    Table is copied and reconstructed (doubling size) if capacity reaches  
    75%.  
   
-Supported functionality:  
+supported functionality:  
 MENU:  
 ===============  
 Enter 1: Display List Entries  
