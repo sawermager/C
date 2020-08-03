@@ -11,6 +11,7 @@ hash_chain.c:
    hash collisions.   
    Table is copied and reconstructed (doubling size) if capacity reaches  
    75%.  
+   
 supported functionality  
 MENU  
 ===============  
