@@ -106,6 +106,7 @@ bool insert(int key, int value) {
       }
       else {
          (Ptr_entry_table+hashed_entry)->Ptr_tail_entry->next = Ptr_tmp;
+         (Ptr_entry_table+hashed_entry)->Ptr_tail_entry = Ptr_tmp;
          current_size++;
       }
    }   
@@ -146,42 +147,36 @@ void delete(int key) {
    Node *Ptr_tmp1 = NULL;
    Node *Ptr_tmp2 = NULL;
    Ptr_tmp1 = (Ptr_entry_table+hash_value)->Ptr_head_entry;
-   while(Ptr_tmp1) {
 
-      /* Case for 1 entry in list at this hashed entry */
+   /* check for matching key at head of 1 element list */
+   if (Ptr_tmp1->key == key) {
       if (Ptr_tmp1->next == NULL) {
-
-         if (Ptr_tmp1->key == key) {
-            free((Ptr_entry_table+hash_value)->Ptr_head_entry);
-            (Ptr_entry_table+hash_value)->Ptr_head_entry = NULL;
-            (Ptr_entry_table+hash_value)->Ptr_tail_entry = NULL;
-            printf("ONE ENTRY IN THIS HASH LIST\n");
-            return;
-         }
+         (Ptr_entry_table+hash_value)->Ptr_head_entry = NULL;
+         (Ptr_entry_table+hash_value)->Ptr_tail_entry = NULL;
+         free(Ptr_tmp1);
       }
-
-      /* Case for multi-node list at this entry in hash table */
-
-      if ((Ptr_tmp1->next != NULL) && (Ptr_tmp1->next->key == key)) {
-
-         /* Check for multi-entry list is node being deleted */
-         if (Ptr_tmp1->next == NULL) {
-            printf("DEL TAIL: MORE THAN ONE ENTRY IN THIS HASH LIST\n");
-            Ptr_tmp1->next = NULL;
-            (Ptr_entry_table+hash_value)->Ptr_tail_entry = Ptr_tmp1;
-            free(Ptr_tmp1->next);
-         }
-         else {
-            printf("DEL TAIL: MORE THAN ONE ENTRY IN THIS HASH LIST\n");
-            Ptr_tmp1->next = Ptr_tmp1->next->next;
-            free(Ptr_tmp1->next);
-         }
-         printf("here5\n");
-         return true;
+      else {
+         (Ptr_entry_table+hash_value)->Ptr_head_entry = Ptr_tmp1->next;
+         free(Ptr_tmp1);
       }
-      Ptr_tmp1 = Ptr_tmp1->next;
    }
-   return false;
+   else {
+
+      /* check for matching key in multi-node list */
+      while (Ptr_tmp1->next->key != key) {
+         Ptr_tmp1 = Ptr_tmp1->next;
+      }
+      if (Ptr_tmp1->next == ((Ptr_entry_table+hash_value)->Ptr_tail_entry)) {
+         (Ptr_entry_table+hash_value)->Ptr_tail_entry = Ptr_tmp1;
+         free(Ptr_tmp1->next);
+         Ptr_tmp1->next = NULL;
+      }
+      else {
+         Ptr_tmp1->next = Ptr_tmp1->next->next;
+         free(Ptr_tmp1);
+      }
+   }
+   return;
 }
 
 int main () {
@@ -221,7 +216,7 @@ int main () {
             printf("Enter key to delete: ");
             scanf("%d", &key);
             hashed_entry = hash(key);
-            if (!find((Ptr_entry_table+hashed_entry)->Ptr_head_entry, key) {
+            if (!find((Ptr_entry_table+hashed_entry)->Ptr_head_entry, key)) {
                printf("No valid entry for this key found\n");
                break;
             }
