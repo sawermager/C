@@ -59,7 +59,7 @@ bool find (Node *Ptr_tmp, int key) {
 
 Node *get_element(Node *Ptr_tmp, int key) {
    while (Ptr_tmp) {
-      if (Ptr_tmp->key = key) 
+      if (Ptr_tmp->key == key) 
          return Ptr_tmp;
       Ptr_tmp = Ptr_tmp->next; 
    return (Node *)NULL;
@@ -106,17 +106,88 @@ bool insert(int key, int value) {
       }
       else {
          (Ptr_entry_table+hashed_entry)->Ptr_tail_entry->next = Ptr_tmp;
-         (Ptr_entry_table+hashed_entry)->Ptr_tail_entry = Ptr_tmp;
          current_size++;
       }
-   }
+   }   
+   /* If hash table gets 75% full, double size of table */
+   if ((float)current_size/(float) max_size > .75) {
+      printf ("Table > 75%% full. Rehashing new table...\n");
+      rehash();
+   } 
    return retval;   
 } /* end insert() */
+
+/*
+  Description: Once table capacity reaches 75%, double size of 
+  table and copy original table into first have of new table.
+*/
+void rehash(void) {
+   int i;
+   Table *Ptr_new_hash = (Table *) malloc (sizeof(Table) * max_size * 2);
+   Table *Ptr_tmp;
+   assert(Ptr_new_hash != NULL);
+    
+   Ptr_tmp = Ptr_entry_table;
+   for (i=0; i<max_size; ++i) {
+      (Ptr_new_hash+i)->Ptr_head_entry = (Ptr_entry_table+i)->Ptr_head_entry;
+      (Ptr_new_hash+i)->Ptr_tail_entry = (Ptr_entry_table+i)->Ptr_tail_entry;
+
+   }
+   for (i=max_size; i<(max_size * 2); ++i) {
+      (Ptr_new_hash+i)->Ptr_head_entry = NULL;
+      (Ptr_new_hash+i)->Ptr_tail_entry = NULL;
+   }
+   Ptr_entry_table = Ptr_new_hash;
+   max_size *=2;
+}
+
+void delete(int key) {
+   int hash_value = hash(key);
+   Node *Ptr_tmp1 = NULL;
+   Node *Ptr_tmp2 = NULL;
+   Ptr_tmp1 = (Ptr_entry_table+hash_value)->Ptr_head_entry;
+   while(Ptr_tmp1) {
+
+      /* Case for 1 entry in list at this hashed entry */
+      if (Ptr_tmp1->next == NULL) {
+
+         if (Ptr_tmp1->key == key) {
+            free((Ptr_entry_table+hash_value)->Ptr_head_entry);
+            (Ptr_entry_table+hash_value)->Ptr_head_entry = NULL;
+            (Ptr_entry_table+hash_value)->Ptr_tail_entry = NULL;
+            printf("ONE ENTRY IN THIS HASH LIST\n");
+            return;
+         }
+      }
+
+      /* Case for multi-node list at this entry in hash table */
+
+      if ((Ptr_tmp1->next != NULL) && (Ptr_tmp1->next->key == key)) {
+
+         /* Check for multi-entry list is node being deleted */
+         if (Ptr_tmp1->next == NULL) {
+            printf("DEL TAIL: MORE THAN ONE ENTRY IN THIS HASH LIST\n");
+            Ptr_tmp1->next = NULL;
+            (Ptr_entry_table+hash_value)->Ptr_tail_entry = Ptr_tmp1;
+            free(Ptr_tmp1->next);
+         }
+         else {
+            printf("DEL TAIL: MORE THAN ONE ENTRY IN THIS HASH LIST\n");
+            Ptr_tmp1->next = Ptr_tmp1->next->next;
+            free(Ptr_tmp1->next);
+         }
+         printf("here5\n");
+         return true;
+      }
+      Ptr_tmp1 = Ptr_tmp1->next;
+   }
+   return false;
+}
 
 int main () {
 
    int choice = 0;
-   int key, value;
+   int key, value, hashed_entry;
    int retval;
    if ((Ptr_entry_table = (Table *) malloc (sizeof(Table) * max_size)) == NULL) {
       assert(Ptr_entry_table == NULL);
@@ -128,7 +199,7 @@ int main () {
       printf("===============\n");
       printf("Enter 1: Display List Entries\n");
       printf("Enter 2: Insert key/value pair\n");
-      printf("Enter 3: Delete key/value pair\n");
+      printf("Enter 3: Delete key\n");
       printf("Enter 4: Find key/value pair\n");
       printf("Enter 99: Exit\n");
       scanf("%d", &choice);
@@ -147,6 +218,17 @@ int main () {
             }
             break;
          case 3:
+            printf("Enter key to delete: ");
+            scanf("%d", &key);
+            hashed_entry = hash(key);
+            if (!find((Ptr_entry_table+hashed_entry)->Ptr_head_entry, key) {
+               printf("No valid entry for this key found\n");
+               break;
+            }
+            else {
+               delete(key);
+            }
+            current_size--;
             break;
          case 4:
             break;

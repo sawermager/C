@@ -18,4 +18,6 @@ int hash(int);
 bool insert(int, int);
 bool find(Node *, int);
 Node * get_element(Node *, int);
+void rehash(void);
+void delete(int);
 
